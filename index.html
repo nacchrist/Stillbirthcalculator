@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Stillbirth Risk Calculator</title>
+  </head>
+  <body>
+    <h2>Stillbirth Risk Calculator</h2>
+
+    <form>
+      <input type="checkbox" id="age" name="age" value="1.2" />
+      <label for="age"> Maternal Age >35 years (Odds Ratio: 1.2)</label><br />
+
+      <input type="checkbox" id="nulliparity" name="nulliparity" value="1.5" />
+      <label for="nulliparity"> Nulliparity (Odds Ratio: 1.5)</label><br />
+
+      <input type="checkbox" id="multiplePregnancy" name="multiplePregnancy" value="3.1" />
+      <label for="multiplePregnancy"> Multiple Pregnancy (Odds Ratio: 3.1)</label><br />
+
+      <input type="checkbox" id="complications" name="complications" value="2.7" />
+      <label for="complications"> Complications of Pregnancy (Odds Ratio: 2.7)</label><br />
+
+      <input type="checkbox" id="smoking" name="smoking" value="1.3" />
+      <label for="smoking"> Smoking (Odds Ratio: 1.3)</label><br />
+
+      <input type="checkbox" id="noCare" name="noCare" value="13" />
+      <label for="noCare"> No Antenatal Care (Odds Ratio: 13)</label><br />
+
+      <input type="checkbox" id="maleBaby" name="maleBaby" value="1.4" />
+      <label for="maleBaby"> Male Sex of Baby (Odds Ratio: 1.4)</label><br />
+
+      <input type="checkbox" id="greatSouthern" name="greatSouthern" value="1.7" />
+      <label for="greatSouthern"> Living in the Great Southern (Odds Ratio: 1.7)</label><br />
+
+      <input type="checkbox" id="socioeconomicDisadvantage" name="socioeconomicDisadvantage" value="1.3" />
+      <label for="socioeconomicDisadvantage"> Socioeconomic Status Disadvantage (Odds Ratio: 1.3)</label><br />
+
+      <label for="ethnicity">Maternal Ethnicity:</label>
+      <select id="ethnicity" name="ethnicity">
+        <option value="1.4">Aboriginal (Odds Ratio: 1.4)</option>
+        <option value="1.0">Caucasian, Maori, Asian, SE Asian (Odds Ratio: 1.0)</option>
+        <option value="2.5">African (Odds Ratio: 2.5)</option>
+      </select><br /><br />
+
+      <label for="placeOfBirth">Place of Birth:</label>
+      <select id="placeOfBirth" name="placeOfBirth">
+        <option value="1.0">Hospital (Odds Ratio: 1.0)</option>
+        <option value="1.6">Home Birth (Odds Ratio: 1.6)</option>
+      </select><br /><br />
+
+      <button type="button" onclick="calculateRisk()">Calculate Risk</button>
+    </form>
+
+    <p id="backgroundRisk"></p>
+    <p id="adjustedBackgroundRisk"></p>
+    <p id="result"></p>
+
+    <script>
+      function calculateRisk() {
+        var baseRisks = {
+          37: 0.11,
+          38: 0.16,
+          39: 0.42,
+          40: 0.69,
+          41: 1.66,
+          42: 3.18
+        };
+
+        var backgroundRisk = 6.7 / 1000;
+        var adjustedBackgroundRisk = backgroundRisk;
+
+        var riskFactors = document.querySelectorAll('input[type="checkbox"]:checked');
+        riskFactors.forEach(function (riskFactor) {
+          var oddsRatio = parseFloat(riskFactor.value);
+          adjustedBackgroundRisk *= oddsRatio;
+        });
+
+        var ethnicity = parseFloat(document.getElementById("ethnicity").value);
+        adjustedBackgroundRisk *= ethnicity;
+
+        var placeOfBirth = parseFloat(document.getElementById("placeOfBirth").value);
+        adjustedBackgroundRisk *= placeOfBirth;
+
+        var resultText = "Adjusted Stillbirth Risk: ";
+        for (var week in baseRisks) {
+          var risk = baseRisks[week] * adjustedBackgroundRisk * 1000;
+          resultText += week + " weeks: " + risk.toFixed(2) + " per 1000 births, ";
+        }
+        resultText = resultText.slice(0, -2);
+
+        document.getElementById("backgroundRisk").innerHTML =
+          "Background Stillbirth Risk during the Whole Pregnancy: " +
+          (backgroundRisk * 1000).toFixed(2) +
+          " per 1000 births";
+        document.getElementById("adjustedBackgroundRisk").innerHTML =
+          "Adjusted Stillbirth Risk during the Whole Pregnancy: " +
+          (adjustedBackgroundRisk * 1000).toFixed(2) +
+          " per 1000 births";
+        document.getElementById("result").innerHTML = resultText;
+      }
+    </script>
+  </body>
+</html>
